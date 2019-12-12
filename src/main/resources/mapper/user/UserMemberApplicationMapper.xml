@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lingkj.project.user.mapper.UserMemberApplicationMapper">
+    <select id="operateType" resultType="java.util.Map" parameterType="int">
+        select * from  operate_type where id=#{typeId}
+    </select>
+    <select id="selectCountById" resultType="java.lang.Integer">
+        select count(*) commodityTypeId from user_agent_rate where user_id = #{userId}
+    </select>
+
+    <select id="getTypeList" resultType="com.lingkj.project.user.dto.DiscountDto">
+        select name,id as commodityTypeId from commodity_type
+    </select>
+
+
+    <select id="getOwnDiscountList" resultType="com.lingkj.project.user.dto.DiscountDto">
+        select id, user_id,rate as discount,commodity_type_id from user_agent_rate where user_id = #{userId}
+    </select>
+
+
+
+    <insert id="saveOwnDiscount" parameterType="java.util.List">
+        insert into user_agent_rate (id,user_id,commodity_type_id,rate,create_by,create_time)
+        values
+        <foreach collection="list" item="dto" separator=",">
+            (#{dto.id},#{dto.userId},#{dto.commodityTypeId},#{dto.discount},#{dto.createBy},#{dto.createTime})
+        </foreach>
+    </insert>
+
+
+
+
+
+
+
+</mapper>

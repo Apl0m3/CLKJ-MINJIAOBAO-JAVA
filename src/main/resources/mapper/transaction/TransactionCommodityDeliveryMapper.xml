@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lingkj.project.transaction.mapper.TransactionCommodityDeliveryMapper">
+    <update id="updateByUserId">
+        update transaction_commodity_delivery
+        set settlement_status=2
+        where user_id = #{userId}
+          and settlement_status = 1
+    </update>
+
+
+    <select id="queryWorkSheet"
+            resultType="com.lingkj.project.transaction.dto.TransactionCommodityDeliveryRespDto">
+
+        SELECT
+        `user`.`name` AS userName,
+        transaction_record.transaction_id,
+        transaction_commodity_delivery.create_time,
+        commodity.`name`,
+        commodity.image,
+        commodity_type.commission
+        FROM
+        transaction_commodity_delivery
+        INNER JOIN transaction_record ON transaction_commodity_delivery.record_id = transaction_record.id
+        INNER JOIN `user` ON transaction_record.user_id = `user`.id
+        INNER JOIN transaction_commodity ON transaction_commodity_delivery.transaction_commodity_id =
+        transaction_commodity.id
+        INNER JOIN commodity ON transaction_commodity.commodity_id = commodity.id
+        INNER JOIN commodity_type ON commodity.commodity_type_id = commodity_type.id
+        WHERE
+        transaction_commodity_delivery.user_id = #{userId} AND
+        transaction_commodity_delivery.type = #{type}
+        <if test="status != null">
+            AND transaction_commodity_delivery.`status` = #{status}
+        </if>
+        limit #{start},#{end}
+        <!--<choose>-->
+        <!--<when test="status != null">-->
+        <!--AND transaction_commodity_delivery.`status` =  #{status}-->
+        <!--</when>-->
+        <!--<otherwise>-->
+        <!--and transaction_commodity_delivery.`status` in-->
+        <!--<foreach collection="couponIds" item="couponId" close=")" open="(" separator=",">-->
+        <!--#{couponId}-->
+        <!--</foreach>-->
+        <!--</otherwise>-->
+
+        <!--</choose>-->
+
+
+    </select>
+    <!--    type 0-全部  1 未处理订单  2 未确认订单   3 已确认订单 4 售后订单-->
+    <select id="queryCommodityDeliverPageApiCount" resultType="java.lang.Integer">
+        select count(*) from transaction_commodity tc inner join transaction_commodity_delivery tcd on
+        tc.id=tcd.transaction_commodity_id
+        inner join commodity c on tc.commodity_id=c.id where tcd.user_id=#{userId}
+        <if test="roleId==3">
+            and tcd.type=1
+        </if>
+        <if test="roleId==4">
+            and tcd.type=2
+        </if>
+        <if test="type==0">
+            and tcd.status!=2
+        </if>
+        <if test="type==1">
+            and tcd.status=0
+        </if>
+        <if test="type==2">
+            and tcd.status=1
+            <if test="roleId==3">
+                and tc.status=4 and tc.substate=40003
+            </if>
+            <if test="roleId==4">
+                and tc.status=6 and tc.substate=60003
+            </if>
+
+        </if>
+        <if test="type==3">
+            and tcd.status=1 and tc.status>4
+        </if>
+        <if test="type==4 and roleId==4">
+            and tc.status=10 and tc.substate>100004
+        </if>
+    </select>
+    <select id="queryCommodityDeliverPageApi"
+            resultType="com.lingkj.project.transaction.dto.TransactionCommodityDeliveryRespDto">
+        select tc.transaction_id,tc.record_id,tc.manuscript_url,tc.status,tc.substate,tcd.create_time,tcd.id as
+        deliveryId,tcd.transaction_commodity_id,tcd.status as
+        deliveryStatus,c.name,c.image,if(tcd.type=1,uc.commission,tc.factory_price) as commission,u.name as
+        userName from transaction_commodity tc
+        inner join transaction_commodity_delivery tcd on tc.id=tcd.transaction_commodity_id
+        inner join transaction_record tr on tr.id=tc.record_id
+        inner join user u on tr.user_id=u.id
+        inner join commodity c on tc.commodity_id=c.id
+        left join user_commission uc on uc.user_id=tcd.user_id and uc.commodity_type_id=c.commodity_type_id
+        where tcd.user_id=#{userId}
+        <if test="roleId==3">
+            and tcd.type=1
+        </if>
+        <if test="roleId==4">
+            and tcd.type=2
+        </if>
+        <if test="type==0">
+            and tcd.status!=2
+        </if>
+        <if test="type==1">
+            and tcd.status=0
+        </if>
+        <if test="type==2">
+            and tcd.status=1
+            <if test="roleId==3">
+                and tc.status=4 and tc.substate=40003
+            </if>
+            <if test="roleId==4">
+                and tc.status=6 and tc.substate=60003
+            </if>
+
+        </if>
+        <if test="type==3">
+            and tcd.status=1 and tc.status>4
+        </if>
+        <if test="type==4 and roleId==4">
+            and tc.status=10 and tc.substate>100004
+        </if>
+        order by tc.create_time desc limit #{limit},#{pageSize}
+    </select>
+    <select id="selectByIdForUpdate"
+            resultType="com.lingkj.project.transaction.entity.TransactionCommodityDelivery">
+        select * from transaction_commodity_delivery where user_id=#{userId} and id=#{deliveryId}
+    </select>
+    <select id="selectByTransactionCommodityId"
+            resultType="com.lingkj.project.transaction.entity.TransactionCommodityDelivery">
+        select * from transaction_commodity_delivery where user_id=#{userId} and transaction_commodity_id=#{trCommodityId} and status=1
+    </select>
+    <select id="selectByTrCommodityIdType"
+            resultType="com.lingkj.project.transaction.entity.TransactionCommodityDelivery">
+         select * from transaction_commodity_delivery where `type`=#{typeSupplier} and transaction_commodity_id=#{transactionCommodityId} and status=1
+    </select>
+    <select id="countUnSettlement" resultType="java.lang.Integer">
+        select count(*) from transaction_commodity_delivery tcd where tcd.user_id=#{userId} and tcd.settlement_status=1 and tcd.type=#{type};
+    </select>
+    <select id="settled" resultType="java.lang.Integer">
+        select count(*) from transaction_commodity_delivery tcd where tcd.user_id=#{userId} and tcd.settlement_status=2 and tcd.type=#{type};
+    </select>
+    <select id="queryUnSettlement" resultType="java.util.Map">
+       select tcd.id,tc.transaction_id as transactionId,tc.name,ct.name as commodityTypeName,tc.image,
+       if(tcd.type=1,(SELECT uc.commission FROM user_commission uc WHERE uc.user_id=#{userId} and uc.commodity_type_id=tc.commodity_type_id),tc.factory_price) as amount
+       from transaction_commodity_delivery tcd
+       inner join transaction_commodity tc on tcd.transaction_commodity_id=tc.id
+       inner join commodity_type ct on ct.id=tc.commodity_type_id
+         where tcd.user_id=#{userId} and tcd.settlement_status=1 and tcd.type=#{type} limit #{limit},#{pageSize}
+    </select>
+    <select id="querySettled" resultType="java.util.Map">
+        select tcd.id,tc.transaction_id as transactionId,tc.name,ct.name as commodityTypeName,tc.image,
+               if(tcd.type=1,(SELECT uc.commission FROM user_commission uc WHERE uc.user_id=#{userId} and uc.commodity_type_id=tc.commodity_type_id),tc.factory_price) as amount
+        from transaction_commodity_delivery tcd
+                 inner join transaction_commodity tc on tcd.transaction_commodity_id=tc.id
+                 inner join commodity_type ct on ct.id=tc.commodity_type_id
+        where tcd.user_id=#{userId} and tcd.settlement_status=2 and tcd.type=#{type} limit #{limit},#{pageSize}
+    </select>
+    <select id="selectByRecordIdForUpdate"
+            resultType="com.lingkj.project.transaction.entity.TransactionCommodityDelivery">
+        select * from transaction_commodity_delivery tcd where tcd.status=1 and tcd.record_id=#{recordId} and tcd.transaction_commodity_id=#{transactionCommodityId} and type=#{type};
+    </select>
+
+</mapper>

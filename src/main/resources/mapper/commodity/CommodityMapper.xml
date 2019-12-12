@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lingkj.project.commodity.mapper.CommodityMapper">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.lingkj.project.commodity.entity.Commodity" id="commodityMap">
+        <result property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="remark" column="remark"/>
+        <result property="description" column="description"/>
+        <result property="commodityTypeId" column="commodity_type_id"/>
+        <result property="image" column="image"/>
+        <result property="type" column="type"/>
+        <result property="status" column="status"/>
+        <result property="createSysUserId" column="create_sys_user_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateSysUserId" column="update_sys_user_id"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+    <update id="updateBatchIds">
+        update commodity set `status`=2
+        where id in
+        <foreach collection="array" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </update>
+    <update id="updateBatchStatus">
+        update commodity set `status` =IF( `status` = 0, 1, 0 )
+        where id in
+        <foreach collection="array" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </update>
+    <update id="updateSoldNum">
+        update commodity
+        set sold_num=sold_num + #{size}
+        <if test="sysUserId!=null and sysUserId!=''">
+            , update_sys_user_id=#{sysUserId}
+        </if>
+        <if test="updateTime!=null">
+            ,update_time=#{updateTime}
+        </if>
+        where id = #{commodityId}
+    </update>
+
+    <select id="queryCommodityCount" resultType="int">
+        select count(*) from commodity cd where cd.status=0 and cd.type=#{type}
+        <if test="key!=null and key!=''">
+            and cd.name like '%${key}%'
+        </if>
+        <if test="typeId!=null and typeId!=''">
+            and cd.commodity_type_id =#{typeId}
+        </if>
+    </select>
+    <select id="queryCommodityList" resultType="com.lingkj.project.api.commodity.dto.ApiCommodityListDto">
+        select cd.id,cd.name,cd.image,cd.recommend,if(#{userId},(select count(*) from user_collection_commodity where
+        user_id=#{userId} and commodity_id=cd.id),0) as collection_status,fristPinyin(cd.name) as fristPinyin
+        from commodity cd where cd.status=0 and cd.type=#{type}
+        <if test="key!=null and key!=''">
+            and cd.name like '%${key}%'
+        </if>
+        <if test="typeId!=null and typeId!=''">
+            and cd.commodity_type_id =#{typeId}
+        </if>
+        order by fristPinyin asc
+        limit #{limit},#{pageSize}
+
+    </select>
+    <select id="info" resultType="com.lingkj.project.api.commodity.dto.ApiCommodityDto">
+        select * from commodity where id=#{id}
+    </select>
+
+
+    <select id="queryAllIntegralCommodityCount" resultType="int">
+        select count(*) from commodity cd where cd.status=0 and cd.type=2
+    </select>
+
+    <select id="queryIntegralCommodityList" resultType="com.lingkj.project.api.commodity.dto.ApiIntegralCommodityDto">
+        select cd.id,cd.name,cd.image,cd.amount
+        from commodity cd where cd.status=0 and cd.type=2
+        limit #{limit},#{pageSize};
+    </select>
+
+    <select id="queryIntegralDetail" resultType="com.lingkj.project.api.commodity.dto.ApiDetailIntegralCommodityDto">
+        SELECT
+            cd.id,
+            cd. NAME,
+            cd.amount,
+            cd.sold_num,
+            cd.description,
+            cd.num
+        FROM
+	        commodity cd
+        WHERE
+            cd.STATUS = 0
+        AND cd.type = 2
+        AND cd.id = #{id}
+    </select>
+
+    <select id="queryIntegralCommodityFileList" resultType="java.lang.String">
+        SELECT cf.file_url from commodity_file cf WHERE cf.commodity_id=#{id}
+    </select>
+    <update id="updateNum">
+        update commodity
+        set sold_num=sold_num + #{num},
+            num=num - #{num},
+            update_time=#{current}
+        where id = #{id}
+    </update>
+
+
+    <select id="queryLastCommodityList" resultType="com.lingkj.project.api.commodity.dto.ApiCommodityListDto">
+            SELECT cd.id,cd.name,cd.image,cd.recommend,if(#{userId},(select count(*) from user_collection_commodity where
+        user_id=#{userId} and commodity_id=cd.id),0) as collection_status from commodity cd where cd.status = 0 AND  cd.`type` = 1
+            <if test="id!=null">
+                AND cd.id &lt;&gt; #{id}
+            </if>
+             order by cd.create_time DESC limit 20
+</select>
+
+    <select id="queryCommodity" resultType="com.lingkj.project.commodity.entity.Commodity">
+        SELECT * from commodity where commodity.id = #{id} for update
+    </select>
+</mapper>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lingkj.project.operation.mapper.PaymentMethodMapper">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.lingkj.project.operation.entity.OperatePaymentMethod" id="paymentMethodMap">
+        <result property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="image" column="image"/>
+        <result property="appId" column="app_id"/>
+        <result property="mchId" column="mch_id"/>
+        <result property="appKey" column="app_key"/>
+        <result property="status" column="status"/>
+        <result property="paymentType" column="payment_type"/>
+        <result property="createSysUserId" column="create_sys_user_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateSysUserId" column="update_sys_user_id"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+    <select id="countByPaymentType" resultType="int" parameterType="int">
+     select count(*) from operate_payment_method where payment_type=#{paymentType} and status=0
+   </select>
+    <update id="updateStatusByIds" parameterType="java.util.List">
+        update operate_payment_method set status=1
+        where id in
+        <foreach collection="list" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </update>
+
+    <select id="selectByType" resultType="com.lingkj.project.operation.entity.OperatePaymentMethod" parameterType="int">
+        select * from operate_payment_method where payment_type=#{type} and status=0
+</select>
+
+    <select id="selectApiList" resultType="com.lingkj.project.api.operation.dto.ApiOperatePaymentDto">
+        select * from operate_payment_method where status=0
+    </select>
+
+
+    <select id="queryOperatePaymentMethodList" resultType="com.lingkj.project.operation.entity.OperatePaymentMethod">
+       SELECT
+           *
+        FROM
+            operate_payment_method
+        WHERE
+            `status` = 0
+        LIMIT #{limit},#{pageSize}
+    </select>
+
+    <select id="queryInfo" resultType="com.lingkj.project.operation.entity.OperatePaymentMethod">
+       SELECT
+           *
+        FROM
+            operate_payment_method
+        WHERE
+            `status` = 0
+        AND
+            `id` = #{id}
+    </select>
+
+    <update id="updateInfo"  parameterType="com.lingkj.project.operation.entity.OperatePaymentMethod">
+        UPDATE operate_payment_method
+        <trim prefix="set" suffixOverrides=",">
+            <if test="name!=null">`name`=#{name},</if>
+            <if test="image!=null">`image`=#{image},</if>
+            <if test="appId!=null">app_id=#{appId},</if>
+            <if test="mchId!=null">mch_id=#{mchId},</if>
+            <if test="key!=null">`key`=#{key},</if>
+            <if test="publicKey!=null">public_key=#{publicKey},</if>
+            <if test="privateKey!=null">private_key=#{privateKey},</if>
+            <if test="status!=null">status=#{status},</if>
+            <if test="paymentType!=null">payment_type=#{paymentType},</if>
+            <if test="createSysUserId!=null">create_sys_user_id=#{createSysUserId},</if>
+            <if test="updateSysUserId!=null">update_sys_user_id=#{updateSysUserId},</if>
+            <if test="createTime!=null">create_time=#{createTime},</if>
+            <if test="updateTime!=null">update_time=#{updateTime},</if>
+        </trim>
+        WHERE <if test="id!=null">id=#{id}</if>
+    </update>
+
+    <update id="updateListOverdueAmountAndOverdueDay" parameterType="java.util.List">
+         UPDATE arc_pool_to_center_new SET update_time = NOW() ,overdue_amount =
+         <foreach collection="items" item="item" index="index" separator="" open="Case id" close="END">
+          WHEN #{item.id} THEN #{item.overdueAmount} </foreach>
+          ,overdue_day =
+          <foreach collection="items" item="item" index="index" separator="" open="Case id" close="END">
+           WHEN #{item.id} THEN #{item.overdueDay}
+           </foreach> WHERE is_delete = 0 AND id IN
+            <foreach collection="items" item="item" index="index" separator="," open="(" close=")">
+             #{item.id}
+             </foreach>
+    </update>
+</mapper>

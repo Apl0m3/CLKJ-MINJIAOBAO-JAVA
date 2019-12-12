@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lingkj.project.operation.mapper.OperateRulesMapper">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.lingkj.project.operation.entity.OperateRules" id="integralRulesMap">
+        <result property="id" column="id"/>
+        <result property="type" column="type"/>
+        <result property="condition" column="condition"/>
+        <result property="result" column="result"/>
+        <result property="createTime" column="create_time"/>
+        <result property="createSysUserId" column="create_sys_user_id"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="updateSysUserId" column="update_sys_user_id"/>
+    </resultMap>
+    <update id="updateStatusByIds">
+        update operat_integral_rules
+        set status=1
+        where id in
+        <foreach collection="asList" item="id" open="(" close=")" separator=",">
+            id=#{id}
+        </foreach>
+    </update>
+    <select id="getOneByType" resultType="com.lingkj.project.operation.entity.OperateRules">
+        select * from  operate_rules
+        where  operate_rules.type=#{type} AND
+            operate_rules.rule_type=#{ruleType}
+
+    </select>
+
+</mapper>

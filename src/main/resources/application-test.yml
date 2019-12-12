@@ -1,0 +1,71 @@
+#dubbo配置
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://115.28.86.42:3306/dingzhiwang?autoReconnect=true&useSSL=false&serverTimezone=UTC&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=CONVERT_TO_NULL
+      username: root
+      password: rc7xlzGcToNd
+      #    password: rc7xlzGcToNd
+      # 初始化大小，最小，最大
+      initial-size: 1
+      min-idle: 3
+      max-active: 20
+      # 配置获取连接等待超时的时间
+      max-wait: 60000
+      # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+      time-between-eviction-runs-millis: 60000
+      # 配置一个连接在池中最小生存的时间，单位是毫秒
+      min-evictable-idle-time-millis: 30000
+      validationQuery: select 'x'
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+      # 打开PSCache，并且指定每个连接上PSCache的大小
+      pool-prepared-statements: true
+      max-pool-prepared-statement-per-connection-size: 20
+      # 配置监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙
+      filters: stat,wall
+      # 通过connectProperties属性来打开mergeSql功能；慢SQL记录
+      #    connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+      # 合并多个DruidDataSource的监控数据
+      #useGlobalDataSourceStat: true
+      stat-view-servlet:
+        enabled: false
+      web-stat-filter:
+        enabled: false
+        session-stat-enable: false
+  redis:
+    database: 0
+    host: 10.80.134.250
+    port: 6379
+    password: ALfCOLLuWIZkgjN8    # 密码（默认为空）
+    timeout: 6000ms  # 连接超时时长（毫秒）
+    jedis:
+      pool:
+        max-active: 1000  # 连接池最大连接数（使用负值表示没有限制）
+        max-wait: -1ms      # 连接池最大阻塞等待时间（使用负值表示没有限制）
+        max-idle: 10      # 连接池中的最大空闲连接
+        min-idle: 5       # 连接池中的最小空闲连接
+  mail:
+    username: info@a1publicidad.eu
+    password: Infogeneral
+    default-encoding: UTF-8
+    host: smtp.ionos.es
+    port: 587
+common:
+  # APP模块，是通过jwt认证的，如果要使用APP模块，则需要修改【加密秘钥】
+  jwt:
+    # 加密秘钥
+    secret: dvkhIcGssR67RoMhGWaYoECXwDcyNOxR
+    # token有效时长，7天，单位秒
+    expire: 604800
+    header: auth-token
+  file:
+    fileServerIp: www.lingkj.com
+    fileServerPort: 8092
+    fileStoreDir: /home/dingzhiwang/uploads_dingzhiwang/
+    webUrl: http://www.lingkj.com:8092
+    certPath: /home/qingquanyy/apiclient_cert.p12
+    shellPath: /home/qingquanyy/shutdown.sh

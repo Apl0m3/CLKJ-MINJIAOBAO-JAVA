@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lingkj.project.user.mapper.UserCommissionMapper">
+
+
+    <select id="selectByTransactionCommodityId" resultType="com.lingkj.project.user.entity.UserCommission" parameterType="long">
+        select uc.* from user_commission uc where uc.user_id=#{designUserId} and uc.commodity_type_id = (select tc.commodity_type_id from  transaction_commodity tc where tc.id=#{transactionCommodityId})
+    </select>
+
+</mapper>

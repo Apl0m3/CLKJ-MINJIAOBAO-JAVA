@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lingkj.project.user.mapper.UserReceivingAddressMapper">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.lingkj.project.user.entity.UserReceivingAddress" id="userReceivingAddressMap">
+        <result property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="receiveName" column="receive_name"/>
+        <result property="receivePhone" column="receive_phone"/>
+        <result property="isDefault" column="is_default"/>
+        <result property="status" column="status"/>
+        <result property="createTime" column="create_time"/>
+        <result property="address" column="address"/>
+        <result property="areaCode" column="area_code"/>
+    </resultMap>
+
+    <update id="updateDefaultByUserId">
+        update user_receiving_address
+        set is_default=1
+        where user_id = #{userId}
+          and status = 0
+          and is_default = 2
+    </update>
+    <select id="queryAddressList" parameterType="long" resultType="com.lingkj.project.user.dto.ReceivingAddressRespDto">
+        SELECT
+            user_receiving_address.address,
+            user_receiving_address.province,
+            user_receiving_address.city,
+            user_receiving_address.`name`,
+            user_receiving_address.phone,
+            user_receiving_address.is_default,
+            user_receiving_address.id,
+            user_receiving_address.postal_code,
+            user_receiving_address.country
+        FROM
+            user_receiving_address
+        WHERE
+            user_receiving_address.user_id = #{userId} AND
+            user_receiving_address.`status` = 0
+
+    </select>
+    <select id="queryRespDtoById" parameterType="long" resultType="com.lingkj.project.user.dto.ReceivingAddressRespDto">
+        select
+            user_receiving_address.address,
+            user_receiving_address.province,
+            user_receiving_address.city,
+            user_receiving_address.`name` AS receiveName,
+            user_receiving_address.phone AS receivePhone,
+            user_receiving_address.is_default,
+            user_receiving_address.id,
+            user_receiving_address.country
+          from user_receiving_address where user_id=#{userId} and id=#{addressId}
+    </select>
+    <select id="queryDefault" resultType="com.lingkj.project.user.dto.ReceivingAddressRespDto">
+         select
+             user_receiving_address.address,
+             user_receiving_address.province,
+             user_receiving_address.city,
+             user_receiving_address.`name`,
+             user_receiving_address.phone,
+             user_receiving_address.is_default,
+             user_receiving_address.id,
+             user_receiving_address.postal_code,
+             user_receiving_address.country
+          from user_receiving_address where user_id=#{userId} and is_default=2 and status=0
+
+    </select>
+</mapper>

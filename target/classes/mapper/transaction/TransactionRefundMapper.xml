@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lingkj.project.transaction.mapper.TransactionRefundMapper">
+
+
+    <select id="selectByTransactionForUpdate"
+            resultType="com.lingkj.project.transaction.entity.TransactionRefund" parameterType="string">
+        select * from transaction_refund where transaction_id=#{transactionId} for update
+     </select>
+</mapper>

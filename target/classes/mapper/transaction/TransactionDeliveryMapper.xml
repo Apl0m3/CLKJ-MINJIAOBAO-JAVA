@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lingkj.project.transaction.mapper.TransactionDeliveryMapper">
+
+
+    <select id="selectByTransactionId" resultType="java.util.Map" parameterType="string">
+        select ods.name as deliveryStaffName,ods.phone as deliveryStaffPhone from transaction_delivery td
+        inner join operate_delivery_staff ods on td.delivery_staff_id=ods.id where td.transaction_id=#{transactionId}
+    </select>
+</mapper>

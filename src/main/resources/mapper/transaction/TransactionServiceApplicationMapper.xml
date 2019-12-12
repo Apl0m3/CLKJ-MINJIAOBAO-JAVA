@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lingkj.project.transaction.mapper.TransactionServiceApplicationMapper">
+
+    <select id="queryFileList" resultType="com.lingkj.project.transaction.entity.TransactionServiceFile">
+        SELECT * FROM `transaction_service_file` WHERE `service_id` = #{id}
+    </select>
+    <select id="selectByIdForUpdate"
+            resultType="com.lingkj.project.transaction.entity.TransactionServiceApplication">
+        select * from transaction_service_application tsa where tsa.id=#{id} for update;
+    </select>
+
+</mapper>

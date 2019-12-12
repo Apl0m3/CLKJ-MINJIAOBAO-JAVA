@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lingkj.project.transaction.mapper.TransactionCommodityMapper">
+    <update id="updateStatusByRecordId">
+        update transaction_commodity
+        set status=#{status}
+        where record_id = #{recordId}
+    </update>
+
+
+    <select id="selectByRecordId"
+            resultType="com.lingkj.project.api.transaction.dto.ApiTransactionCommodityRespDto">
+        select tc.id,tc.number_select_type,tc.commodity_num,c.id as commodityId,c.image,c.name,tc.amount as trAmount,tc.need_designer_status,tc.status,tc.substate from transaction_commodity tc
+            inner join commodity c on tc.commodity_id=c.id
+        where tc.transaction_id=#{transactionId}
+    </select>
+    <select id="queryCommodityByRecordId"
+            resultType="com.lingkj.project.transaction.dto.TransactionCommodityRespDto">
+        select tc.*,c.name,c.image from transaction_commodity tc inner join commodity c on tc.commodity_id=c.id where tc.record_id=#{id}
+    </select>
+    <select id="countDeliverDesigner" resultType="java.lang.Integer"
+            parameterType="com.lingkj.project.transaction.dto.TransactionDeliveryListReqDto">
+        select COUNT(*) from transaction_commodity tc inner join commodity c on tc.commodity_id=c.id
+        inner join user_commission uc on c.commodity_type_id=uc.commodity_type_id
+        inner join user u on uc.user_id=u.id
+        where tc.id=#{transactionCommodityId}
+        <if test="type==1">
+            and u.user_role_id=3
+        </if>
+        <if test="type==2">
+            and u.user_role_id=4
+        </if>
+        <if test="key!=null and key!=''">
+            and u.user_name like '%${key}%'
+        </if>
+        <if test="start!=null and start>0">
+            and uc.commission>#{start}
+        </if>
+        <if test="end!=null and end>0">
+            and #{end}>=uc.commission
+        </if>
+    </select>
+    <select id="queryDeliverDesigner" resultType="com.lingkj.project.transaction.dto.TransactionDeliveryRespDto"
+            parameterType="com.lingkj.project.transaction.dto.TransactionDeliveryListReqDto">
+        select u.id,u.user_name,u.name,u.avatar,uc.commission from transaction_commodity tc inner join commodity c on
+        tc.commodity_id=c.id
+        inner join user_commission uc on c.commodity_type_id=uc.commodity_type_id
+        inner join user u on uc.user_id=u.id
+        where tc.id=#{reqDto.transactionCommodityId}
+        <if test="reqDto.type==1">
+            and u.user_role_id=3
+        </if>
+        <if test="reqDto.type==2">
+            and u.user_role_id=4
+        </if>
+        <if test="reqDto.key!=null and reqDto.key!=''">
+            and u.user_name like '%${reqDto.key}%'
+        </if>
+        <if test="reqDto.start!=null and reqDto.start>0">
+            and uc.commission>=#{reqDto.start}
+        </if>
+        <if test="reqDto.end!=null and reqDto.end>0">
+            and #{reqDto.end}>=uc.commission
+        </if>
+        limit #{limit},#{pageSize}
+    </select>
+    <select id="selectByIdForUpdate" resultType="com.lingkj.project.transaction.entity.TransactionCommodity">
+        select * from transaction_commodity where id=#{id} for update;
+    </select>
+    <select id="queryCommodityById"
+            resultType="com.lingkj.project.api.transaction.dto.ApiTransactionCommodityRespDto">
+        select tc.*,tc.transaction_id,c.id as commodityId,c.type as commodityType,tc.amount as trAmount ,c.image,c.name from transaction_commodity tc
+       inner join commodity c on tc.commodity_id=c.id
+        where tc.id=#{id}
+    </select>
+    <select id="queryDeliverSupplier"
+            resultType="com.lingkj.project.transaction.dto.TransactionDeliveryRespDto">
+        SELECT u.id,u.user_name,u.name,u.avatar FROM user_supplier_application usa
+        inner join user u on u.id=usa.user_id
+        inner join transaction_commodity tc on INSTR(usa.type_ids,tc.commodity_type_id) where
+        tc.id=#{reqDto.transactionCommodityId}
+        <if test="reqDto.type==1">
+            and u.user_role_id=3
+        </if>
+        <if test="reqDto.type==2">
+            and u.user_role_id=4
+        </if>
+        <if test="reqDto.key!=null and reqDto.key!=''">
+            and u.user_name like '%${reqDto.key}%'
+        </if>
+        limit #{limit},#{pageSize}
+    </select>
+    <select id="countDeliverSupplier" resultType="java.lang.Integer">
+         SELECT count(*) FROM user_supplier_application usa
+        inner join user u on u.id=usa.user_id
+        inner join transaction_commodity tc on INSTR(usa.type_ids,tc.commodity_type_id) where
+        tc.id=#{transactionCommodityId}
+        <if test="type==1">
+            and u.user_role_id=3
+        </if>
+        <if test="type==2">
+            and u.user_role_id=4
+        </if>
+        <if test="key!=null and key!=''">
+            and u.user_name like '%${key}%'
+        </if>
+    </select>
+</mapper>

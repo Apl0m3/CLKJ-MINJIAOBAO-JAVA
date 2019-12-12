@@ -1,0 +1,28 @@
+{
+  "groups": [
+    {
+      "name": "common.jwt",
+      "type": "com.lingkj.common.utils.jwt.JwtUtils",
+      "sourceType": "com.lingkj.common.utils.jwt.JwtUtils"
+    }
+  ],
+  "properties": [
+    {
+      "name": "common.jwt.expire",
+      "type": "java.lang.Long",
+      "sourceType": "com.lingkj.common.utils.jwt.JwtUtils",
+      "defaultValue": 0
+    },
+    {
+      "name": "common.jwt.header",
+      "type": "java.lang.String",
+      "sourceType": "com.lingkj.common.utils.jwt.JwtUtils"
+    },
+    {
+      "name": "common.jwt.secret",
+      "type": "java.lang.String",
+      "sourceType": "com.lingkj.common.utils.jwt.JwtUtils"
+    }
+  ],
+  "hints": []
+}

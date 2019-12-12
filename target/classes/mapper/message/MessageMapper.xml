@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lingkj.project.message.mapper.MessageMapper">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.lingkj.project.message.entity.Message" id="messageMap">
+        <result property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="type" column="type"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="createTime" column="create_time"/>
+        <result property="createSysUserId" column="create_sys_user_id"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="updateSysUserId" column="update_sys_user_id"/>
+    </resultMap>
+    <update id="updateStatusByIds">
+        update operate_message set status=1 where id in
+        <foreach collection="asList" item="id" open="(" close=")" separator=",">
+            id=#{id}
+        </foreach>
+    </update>
+    <!--<if test="type==1">
+                where m.type=1
+            </if>
+            <if test="type!=1">
+                where m.user_id=#{userId}
+            </if>-->
+    <select id="queryMessageCount" resultType="int">
+        select count(*) from message m where (m.type=1 or m.user_id=#{userId}) and m.create_time>#{createTime}
+    </select>
+    <select id="queryMessageList" resultType="com.lingkj.project.message.dto.MessageRespDto">
+        select m.id,m.title,m.type,m.content,m.transaction_id,
+        IF(mul.id,1,0) as readStatus,m.create_time  from message m
+        LEFT join message_user_log mul on m.id=mul.message_id and mul.user_id=#{userId}
+          where  (m.type=1 or m.user_id=#{userId})and m.create_time>#{createTime} order by m.create_time desc limit #{limitStart},#{pageSize}
+    </select>
+    <select id="selectByUserId" resultType="com.lingkj.project.message.dto.MessageRespDto" parameterType="long">
+        select m.title,m.content,m.type,m.create_time as createTime from message m where m.id=#{id}
+    </select>
+    <select id="countUnreadMessages" resultType="java.lang.Integer">
+        select count(*) from message m where  m.create_time>#{createTime}
+        and m.status=0 and (m.type=1 or m.user_id=#{userId}) and m.id not in (select message_id from message_user_log where user_id=#{userId})
+    </select>
+    <select id="selectByUserIdNewMessage" resultType="com.lingkj.project.message.dto.MessageRespDto" parameterType="long">
+        select m.id,m.title,m.content,m.type,m.create_time as createTime from message m where m.create_time=(SELECT max(me.create_time) FROM message AS me
+                                                                                                        WHERE me.status=0 and me.user_id=#{userId})
+    </select>
+</mapper>

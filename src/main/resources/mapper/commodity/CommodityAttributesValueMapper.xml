@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lingkj.project.commodity.mapper.CommodityAttributesValueMapper">
+    <update id="updateStatusInCommodityAttributesValueIds">
+        update commodity_attributes_value set status = 1
+        where commodity_attributes_id in
+        <foreach collection="list" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </update>
+
+
+    <update id="updateNotInIds">
+        update commodity_attributes_value set status = 1
+        where commodity_attributes_id = #{commodityAttributesId}
+        <if test="updateIds.size()>0">
+            and id not in
+            <foreach collection="updateIds" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
+    </update>
+    <select id="queryByCommodityAttributesId" resultType="com.lingkj.project.commodity.entity.CommodityAttributesValue">
+        select * from commodity_attributes_value
+        where status = 0 and commodity_attributes_id = #{value}
+        order by sort asc
+    </select>
+    <select id="queryAttributeValueApi"
+            resultType="com.lingkj.project.api.commodity.dto.ApiCommodityAttributeValueDto" parameterType="long">
+        select * from commodity_attributes_value where  commodity_attributes_id = #{attributeId} and status=0 order by sort asc,recommend desc
+    </select>
+    <select id="selectJsonById" resultType="com.alibaba.fastjson.JSONObject">
+        select  id,commodity_attributes_id as commodityAttributesId,name,length, width,size_customizable as sizeCustomizable,remark, amount,url,sort,parent_id as parentId,recommend from  commodity_attributes_value where id =#{id}
+    </select>
+</mapper>

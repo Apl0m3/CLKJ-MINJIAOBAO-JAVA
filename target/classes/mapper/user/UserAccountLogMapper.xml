@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lingkj.project.user.mapper.UserAccountLogMapper">
+    <select id="getUserAccountLog" resultType="com.lingkj.project.user.dto.UserAccountLogaAndTransactionIdDto">
+ 	 select ual.remark,ual.create_time,ual.change_value,ual.type,tr.transaction_id,u.name,tc.name as commodity_name,tcd.settlement_status from user_account_log ual
+ 	 inner join transaction_commodity tc on ual.transaction_commodity_id=tc.id
+ 	 inner join transaction_commodity_delivery tcd on tcd.transaction_commodity_id=tc.id and tc.record_id=tcd.record_id
+	 inner join transaction_record tr on ual.record_id=tr.id inner join user u on tr.user_id=u.id
+	  WHERE ual.user_id=#{userId} and tcd.user_id=#{userId} and tcd.status=1 and tcd.settlement_status in (1,2)
+            limit #{start},#{end}
+    </select>
+    <select id="queryUserAccountLogCount" parameterType="long" resultType="java.lang.Integer">
+         select count(*) from user_account_log ual inner join transaction_commodity tc on ual.transaction_commodity_id=tc.id
+	  inner join transaction_record tr on ual.record_id=tr.id inner join user u on tr.user_id=u.id
+	  inner join transaction_commodity_delivery tcd on tcd.transaction_commodity_id=tc.id and tc.record_id=tcd.record_id
+	 WHERE ual.user_id=#{userId} and tcd.user_id=#{userId} and tcd.status=1 and tcd.settlement_status in (1,2)
+    </select>
+
+
+</mapper>

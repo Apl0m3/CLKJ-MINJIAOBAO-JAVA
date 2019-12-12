@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lingkj.project.user.mapper.UserCouponMapMapper">
+    <select id="getUserCoupon" resultType="com.lingkj.project.user.dto.UserCouponAndCouponDto">
+        SELECT
+            user_coupon_map.create_time,
+            coupon.`name`,
+            coupon.instructions,
+            coupon.image,
+            coupon_type.`name`AS couponTypeName
+        FROM
+            user_coupon_map
+                INNER JOIN coupon ON user_coupon_map.coupon_id = coupon.id
+                INNER JOIN coupon_type ON coupon.coupon_type = coupon_type.id
+        WHERE
+            user_coupon_map.user_id = #{userId} AND
+            user_coupon_map.status = 0 AND
+            #{date}>= user_coupon_map.start_time  And
+            user_coupon_map.expire_time >#{date}
+        order by create_time desc
+                 limit #{start},#{end}
+    </select>
+    <select id="queryUserCouponCount" resultType="java.lang.Integer">
+        SELECT
+            count(*)
+        FROM
+            user_coupon_map as ucm
+        WHERE
+            ucm.user_id = #{userId} AND
+            ucm.status = 0 AND
+             #{date} >= ucm.start_time  And
+            ucm.expire_time > #{date}
+    </select>
+    <select id="queryUseCoupon" resultType="com.lingkj.project.api.user.dto.ApiCouponDto">
+        select c.name,c.coupon_type,c.image,c.regulation,c.result,ucm.id,ucm.coupon_id from coupon c inner join user_coupon_map ucm on c.id=ucm.coupon_id
+         where ucm.user_id=#{userId} and ucm.status=0 and #{date}>=ucm.start_time and ucm.expire_time>=#{date}
+        and  (c.general=1
+        <if test="couponIds!=null and couponIds.size()>0">
+            or (c.general=0 and c.id in
+            <foreach collection="couponIds" item="couponId" close=")" open="(" separator=",">
+                #{couponId}
+            </foreach>
+            )
+        </if>
+       )
+    </select>
+
+
+</mapper>

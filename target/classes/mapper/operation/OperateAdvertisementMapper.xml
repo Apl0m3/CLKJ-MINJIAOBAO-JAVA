@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lingkj.project.operation.mapper.OperateAdvertisementMapper">
+
+    <update id="updateStatusByIds">
+        update operate_advertisement
+        set status=1
+        where id in
+        <foreach collection="asList" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+
+    </update>
+    <select id="selectListByStatus" resultType="com.lingkj.project.operation.dto.AdvertisementRespDto">
+        select * from operate_advertisement where status=0
+    </select>
+
+    <select id="selectListByTypeAndPosition" resultType="com.lingkj.project.api.operation.dto.AdvertisementDto">
+        select * from operate_advertisement where `type`=#{type}  and  status=0 AND `position`=#{position}
+    </select>
+
+
+
+
+    <select id="getTypeList" resultType="java.util.Map">
+        select name,id as commodityTypeId from commodity_type
+    </select>
+</mapper>

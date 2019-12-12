@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lingkj.project.operation.mapper.TermsAgreementMapper">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.lingkj.project.operation.entity.OperateTermsAgreement" id="termsAgreementMap">
+        <result property="id" column="id"/>
+        <result property="type" column="type"/>
+        <result property="title" column="title"/>
+        <result property="icon" column="icon"/>
+        <result property="content" column="content"/>
+        <result property="createTime" column="create_time"/>
+        <result property="createSysUserId" column="create_sys_user_id"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="updateSysUserId" column="update_sys_user_id"/>
+    </resultMap>
+    <update id="updateStatusByIds">
+        update operate_terms_agreement set status=1
+        where id in
+        <foreach collection="asList" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </update>
+    
+    <select id="getTermsAgreementDtoDtoListsByType" resultType="com.lingkj.project.api.operation.dto.OperateTermsAgreementDto">
+        select id,`type`,title,content from operate_terms_agreement where `type` =#{type} and status = 0
+    </select>
+    
+    
+
+</mapper>

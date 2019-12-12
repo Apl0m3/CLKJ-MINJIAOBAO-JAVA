@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lingkj.project.commodity.mapper.CommodityCommentMapper">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.lingkj.project.commodity.entity.CommodityComment" id="commodityCommentMap">
+        <result property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="transactionId" column="transaction_id"/>
+        <result property="commodityId" column="commodity_id"/>
+    </resultMap>
+
+    <select id="queryComment" resultType="com.lingkj.project.api.commodity.dto.ApiCommodityCommentDto" >
+      select u.name,u.avatar,cc.create_time,cc.comment,cc.id from commodity_comment cc
+      inner join user u on cc.user_id=u.id where cc.commodity_id=#{commodityId} order by cc.create_time desc limit #{limit},#{pageSize}
+    </select>
+    <select id="queryCommentCount" resultType="java.lang.Integer" parameterType="long">
+      select count(*) from commodity_comment cc  where cc.commodity_id=#{commodityId}
+    </select>
+
+</mapper>

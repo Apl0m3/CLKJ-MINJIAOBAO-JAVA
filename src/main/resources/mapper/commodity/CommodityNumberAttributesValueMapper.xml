@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lingkj.project.commodity.mapper.CommodityNumberAttributesValueMapper">
+    <update id="updateStatusInIds">
+        update commodity_number_attributes_value set status=1
+        where commodity_number_attributes_id in
+        <foreach collection="list" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="updateStatusNotInIds">
+        update commodity_number_attributes_value set status=1
+        where commodity_number_attributes_id = #{commodityNumberAttributesId}
+        <if test="updateValueIds.size()>0">
+            and id not in
+            <foreach collection="updateValueIds" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
+    </update>
+
+
+    <select id="queryByCommodityNumberAttributesValueId" resultType="com.lingkj.project.commodity.entity.CommodityNumberAttributesValue">
+        select * from commodity_number_attributes_value
+        where status=0 and commodity_number_attributes_id=#{value}
+        order by sort asc
+    </select>
+</mapper>

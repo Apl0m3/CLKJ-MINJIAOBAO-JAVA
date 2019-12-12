@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lingkj.project.integral.mapper.IntegralUserMapper">
+
+
+    <select id="selectByUserId" resultType="com.lingkj.project.integral.entity.IntegralUser" parameterType="long">
+        select * from user_integral where user_id=#{userId}
+    </select>
+    <select id="selectByUserIdForUpdate" resultType="com.lingkj.project.integral.entity.IntegralUser"
+            parameterType="long">
+        select * from user_integral where user_id=#{userId} for update
+    </select>
+    <update id="updateIntegral">
+        update user_integral
+        set integral=integral + #{integral},
+            modify_time=#{current}
+        where id = #{id}
+    </update>
+
+</mapper>
+

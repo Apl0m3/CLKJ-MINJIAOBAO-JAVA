@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lingkj.project.user.mapper.UserMapper">
+
+    <select id="getInvitationUserLog" resultType="com.lingkj.project.user.dto.GetInvitationUserLogRespDto">
+        SELECT u.user_name as userName,s.sumIntegral
+        from
+            (select invited_user_id as id,sum(integral) as sumIntegral from
+            invitation_user_integral_log where user_id=#{userId} GROUP BY invited_user_id)
+                as s  INNER JOIN `user` u on s.id=u.id LIMIT #{pageStart},#{pageEnd}
+    </select>
+    <select id="getInvitationUserLogCount" resultType="java.lang.Integer">
+        SELECT count(1)
+        from
+            (select invited_user_id as id,sum(integral) as sumIntegral from
+            invitation_user_integral_log where user_id=#{userId} GROUP BY invited_user_id) as s
+    </select>
+    <select id="queryList" resultType="com.lingkj.project.user.entity.User">
+        select * from user where status=0 limit #{limit},#{pageSize}
+    </select>
+</mapper>

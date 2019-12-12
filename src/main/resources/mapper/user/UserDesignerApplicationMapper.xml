@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lingkj.project.user.mapper.UserDesignerApplicationMapper">
+
+    <select id="getTypeList" resultType="com.lingkj.project.user.dto.CommissionDto">
+        select name,id as commodityTypeId,commission from commodity_type
+    </select>
+
+    <select id="getCommissionDto" resultType="com.lingkj.project.user.dto.CommissionDto">
+        select name,id as commodityTypeId,commission from commodity_type
+    </select>
+
+    <insert id="insertCommission" parameterType="java.util.List">
+        insert into user_commission (id,user_id,commodity_type_id,commission,create_by,create_time,update_by,update_time)
+        values
+        <foreach collection="list" item="dto" separator=",">
+            (#{dto.id},#{dto.userId},#{dto.commodityTypeId},#{dto.designCommission},#{dto.createBy},#{dto.createTime},#{dto.updateBy},#{dto.updateTime})
+        </foreach>
+    </insert>
+
+
+
+    <select id="queryUserBankByApplicationIdAndUserId" resultType="com.lingkj.project.user.entity.UserBank">
+        SELECT * FROM user_bank WHERE user_id = #{userId} AND application_id = #{applicationId} AND `type` = 1
+    </select>
+</mapper>

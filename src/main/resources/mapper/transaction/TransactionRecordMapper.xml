@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lingkj.project.transaction.mapper.TransactionRecordMapper">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.lingkj.project.transaction.entity.TransactionRecord" id="userTransactionRecordMap">
+
+    </resultMap>
+    <select id="selectByTransactionIdStatus" resultType="com.lingkj.project.transaction.entity.TransactionRecord"
+            parameterType="string">
+        select * from transaction_record where transaction_id=#{transactionId} and status=#{status}
+        <if test="status==0">
+            for update
+        </if>
+    </select>
+    <select id="selectByTransactionIdUserIdForUpdate"
+            resultType="com.lingkj.project.transaction.entity.TransactionRecord">
+        select * from transaction_record where transaction_id=#{transactionId} and user_id=#{userId} for update
+    </select>
+    <select id="queryUserTransactionRecordCount" resultType="integer">
+        select count(*) from transaction_record tr where tr.user_id=#{userId}
+        <if test="type==0">
+            and tr.status in (0,1,2,3,4,5,6,8,9)
+        </if>
+        <if test="type==1">
+            and tr.status =0
+        </if>
+        <if test="type==2">
+            and (tr.status =2 or (tr.status=3 and payment_method_id=3))
+        </if>
+        <if test="type==3">
+            and tr.status =4
+        </if>
+        <if test="type==4">
+            and tr.status =5
+        </if>
+    </select>
+    <select id="queryUserTransactionRecordSumPaymentAmount" resultType="integer">
+        select ifnull(sum(tr.amount),0) as sum  from transaction_record tr where tr.user_id=#{userId}  and tr.status in (2,3,4,5,6)
+    </select>
+    <select id="queryUserTransactionRecordCountPay" resultType="integer">
+        select count(*) as count  from transaction_record tr where tr.user_id=#{userId}  and tr.status in (2,3,4,5,6)
+    </select>
+
+    <select id="queryUserTransactionRecordPage"
+            resultType="com.lingkj.project.transaction.dto.TransactionRecordRespDto">
+        select
+        tr.transaction_id,tr.amount,tr.type,tr.integral_use_status,tr.integral,tr.status,tr.delivery_method_id,tr.payment_method_id,tr.integral_deduction_amount
+        from transaction_record
+        tr where tr.user_id=#{userId}
+        <if test="type==0">
+            and tr.status in (0,1,2,3,4,5,6,8,9)
+        </if>
+        <if test="type==1">
+            and tr.status =0
+        </if>
+        <if test="type==2">
+            and (tr.status =2 or (tr.status=3 and payment_method_id=3))
+        </if>
+        <if test="type==3">
+            and tr.status =4
+        </if>
+        <if test="type==4">
+            and tr.status =5
+        </if>
+        order by tr.create_time desc
+        limit #{limit},#{pageSize}
+    </select>
+    <select id="selectByTransactionIdForUpdate" resultType="com.lingkj.project.transaction.entity.TransactionRecord"
+            parameterType="string">
+        select * from transaction_record where transaction_id=#{transactionId}  for update
+    </select>
+    <select id="selectByIdForUpdate" resultType="com.lingkj.project.transaction.entity.TransactionRecord"
+            parameterType="long">
+         select * from transaction_record where id=#{id}   for update
+    </select>
+    <!--     0 全部订单  1 待付款订单 2 待定稿订单  3 待收货 4 已收货   5 售后订单-->
+    <select id="queryPageApi" resultType="com.lingkj.project.api.transaction.dto.ApiTransactionRecordDto">
+        select tr.transaction_id,tr.id,tr.amount,tr.type,tr.status,tr.create_time from transaction_record tr inner join
+        transaction_commodity tc on tr.id=tc.record_id where
+        tr.user_id=#{userId}
+        <if test="type==1">
+            and tr.status in (0)
+        </if>
+        <if test="type==2">
+            and tc.status in (4,5)
+        </if>
+        <if test="type==3">
+            and tc.status = 7
+        </if>
+        <if test="type==4">
+            and tc.status in (8,9)
+        </if>
+        <if test="type==5">
+            and tc.status=10
+        </if>
+        order by tr.create_time desc
+        limit #{limit},#{pageSize}
+    </select>
+    <!--type 0 全部订单  1 待付款订单 2 待定稿订单  3 待收货 4 已收货   5 售后订单-->
+    <select id="countApi" resultType="java.lang.Integer">
+        select count(*) from transaction_record tr inner join transaction_commodity tc on tr.id=tc.record_id where
+        tr.user_id=#{userId}
+        <if test="type==1">
+            and tr.status in (0)
+        </if>
+        <if test="type==2">
+            and tc.status in (4,5)
+        </if>
+        <if test="type==3">
+            and tc.status = 7
+        </if>
+        <if test="type==4">
+            and tc.status in (8,9)
+        </if>
+        <if test="type==5">
+            and tc.status=10
+        </if>
+    </select>
+    <select id="transactionInfoApi" resultType="com.lingkj.project.api.transaction.dto.ApiTransactionRecordDto">
+         select tr.payment_method_id,tr.type,tr.transaction_id,tr.id,tr.amount,tr.status,tr.create_time,tr.rate,tr.rate_amount,tr.coupon_amount,tr.discount,tr.discount_amount from transaction_record tr where tr.user_id=#{userId} and tr.id=#{id}
+    </select>
+    <select id="selectCountByCondition" resultType="java.lang.Integer"
+            parameterType="com.lingkj.project.transaction.dto.TransactionReqDto">
+        select count(*) from transaction_record tr
+        inner join user u on tr.user_id=u.id
+        <if test="designName!=null and designName !=''">
+            left outer join transaction_commodity_delivery tcdd on tr.id = tcdd.record_id and tcdd.type = 1
+            left outer join user ud on tcdd.user_id = ud.id
+        </if>
+        <if test="supplyName!=null and supplyName !=''">
+            left outer join transaction_commodity_delivery tcds on tr.id = tcds.record_id and tcds.type = 2
+            left outer join user us on tcds.user_id = us.id
+        </if>
+        <where>
+            <if test="phone!=null and phone!=''">
+                and u.user_name like '%${phone}%'
+            </if>
+            <if test="status!=null">
+                and tr.status=#{status}
+            </if>
+            <if test="transactionId!=null and transactionId!=''">
+                and tr.transaction_id like '%${transactionId}%'
+            </if>
+            <if test="startTime!=null and startTime!=''">
+                and tr.create_time >=#{startTime}
+            </if>
+            <if test="endTime!=null and endTime!=''">
+                and #{endTime}>=tr.create_time
+            </if>
+            <if test="paymentMethodId != null and paymentMethodId !=''">
+                and tr.payment_method_id=#{paymentMethodId}
+            </if>
+            <if test="recordType!=null and recordType !=''">
+                and tr.type=#{recordType}
+            </if>
+            <if test="designName!=null and designName !=''">
+                and ud.user_name=#{designName}
+            </if>
+            <if test="supplyName!=null and supplyName !=''">
+                and us.user_name=#{supplyName}
+            </if>
+        </where>
+    </select>
+    <select id="selectPageByCondition"
+            resultType="com.lingkj.project.transaction.dto.TransactionRecordRespDto">
+        select tr.*,u.user_name,u.name,tc.id as trCommodityId,tc.name as commodityName,tc.image as commodityImage,tc.status as
+        branchStatus,tc.substate from transaction_record tr inner join transaction_commodity tc on tc.record_id=tr.id
+        inner join user u on tr.user_id=u.id
+        <if test="transactionReqDto.designName!=null and transactionReqDto.designName !=''">
+            left outer join transaction_commodity_delivery tcdd on tr.id = tcdd.record_id and tcdd.type = 1
+            left outer join user ud on tcdd.user_id = ud.id
+        </if>
+        <if test="transactionReqDto.supplyName!=null and transactionReqDto.supplyName !=''">
+            left outer join transaction_commodity_delivery tcds on tr.id = tcds.record_id and tcds.type = 2
+            left outer join user us on tcds.user_id = us.id
+        </if>
+        <where>
+            <if test="transactionReqDto.phone!=null and transactionReqDto.phone!=''">
+                and u.user_name like '%${transactionReqDto.phone}%'
+            </if>
+            <if test="transactionReqDto.status!=null">
+                <if test="transactionReqDto.status>3">
+                    and tc.status=#{transactionReqDto.status}
+                </if>
+                <if test="3>=transactionReqDto.status">
+                    and tr.status=#{transactionReqDto.status}
+                </if>
+
+            </if>
+            <if test="transactionReqDto.transactionId!=null and transactionReqDto.transactionId!=''">
+                and tr.transaction_id like '%${transactionReqDto.transactionId}%'
+            </if>
+            <if test="transactionReqDto.startTime!=null and transactionReqDto.startTime!=''">
+                and tr.create_time >=#{transactionReqDto.startTime}
+            </if>
+            <if test="transactionReqDto.endTime!=null and transactionReqDto.endTime!=''">
+                and #{transactionReqDto.endTime}>=tr.create_time
+            </if>
+            <if test="transactionReqDto.paymentMethodId!=null and transactionReqDto.paymentMethodId !=''">
+                and tr.payment_method_id=#{transactionReqDto.paymentMethodId}
+            </if>
+            <if test="transactionReqDto.recordType!=null and transactionReqDto.recordType !=''">
+                and tr.type=#{transactionReqDto.recordType}
+            </if>
+            <if test="transactionReqDto.designName!=null and transactionReqDto.designName !=''">
+                and ud.user_name=#{transactionReqDto.designName}
+            </if>
+            <if test="transactionReqDto.supplyName!=null and transactionReqDto.supplyName !=''">
+                and us.user_name=#{transactionReqDto.supplyName}
+            </if>
+        </where>
+        order by tr.create_time desc limit #{limit},#{pageSize}
+    </select>
+    <select id="selectRecordDtoById" resultType="com.lingkj.project.transaction.dto.TransactionDetailRespDto">
+         select tr.*,u.user_name,u.name from transaction_record tr inner join user u on tr.user_id=u.id where tr.id=#{id}
+    </select>
+    <select id="monthlySales" resultType="java.math.BigDecimal">
+        SELECT sum(if(tca.id and tca.type=2 and tca.status=1,0,tr.amount)) FROM transaction_record tr inner join transaction_commodity tc on tc.record_id=tr.id left join transaction_service_application tca on tca.transaction_commodity_id=tc.id WHERE tc.type=1 and  tc.status in (8,9,10) and DATE_FORMAT(tr.create_time,'%Y%m')=DATE_FORMAT(NOW(),'%Y%m')    </select>
+</mapper>

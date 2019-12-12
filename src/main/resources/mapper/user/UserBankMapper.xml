@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lingkj.project.user.mapper.UserBankMapper">
+    <select id="queryUseBank" resultType="com.lingkj.project.user.entity.UserBank">
+        SELECT
+          *
+        FROM
+            user_bank
+        WHERE
+            user_bank.user_id = #{userId} AND
+            user_bank.application_id = #{applicationId} AND
+            user_bank.type=#{type}
+    </select>
+    <select id="selectByUserId" resultType="com.lingkj.project.user.entity.UserBank">
+        select * from  user_bank where  user_id=#{userId}
+    </select>
+
+
+</mapper>

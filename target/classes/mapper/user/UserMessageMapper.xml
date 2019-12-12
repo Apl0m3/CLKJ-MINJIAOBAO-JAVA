@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lingkj.project.user.mapper.UserMessageMapper">
+
+
+    <select id="countNewApi" resultType="java.lang.Integer">
+        select count(*) from user_message um where um.user_id=#{userId} and um.record_id=#{transactionRecordId} and um.read_status=0
+    </select>
+
+    <select id="newestMessage" resultType="com.lingkj.project.user.entity.UserMessage">
+        SELECT
+            *
+        FROM
+            user_message as um
+        WHERE um.create_time=(SELECT max(us.create_time) FROM user_message AS us WHERE us.read_status=0 and us.user_id=#{userId}) and um.user_id=#{userId}
+    </select>
+    <select id="selectCountById" resultType="java.lang.Integer">
+        select count(*) FROM user_message um where (um.user_id=#{userId} or um.sender_id=#{userId}) and
+        um.record_id=#{recordId}
+        <if test="transactionCommodityId!=null">
+            and um.transaction_commodity_id=#{transactionCommodityId}
+        </if>
+
+    </select>
+    <select id="selectListById" resultType="com.lingkj.project.api.user.dto.ApiUserMessageRespDto">
+        select * FROM user_message um where (um.user_id=#{userId} or um.sender_id=#{userId}) and
+        um.record_id=#{recordId}
+        <if test="transactionCommodityId!=null">
+            and um.transaction_commodity_id=#{transactionCommodityId}
+        </if>
+        order by um.create_time desc
+        limit #{limit},#{pageSize}
+
+    </select>
+    <update id="updateStatusByRecordId" >
+        update user_message
+        set user_message.read_status= 1
+        where user_message.user_id = #{userId} AND
+              user_message.record_id = #{recordId} AND
+              user_message.transaction_commodity_id = #{transactionCommodityId}
+
+    </update>
+</mapper>

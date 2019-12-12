@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lingkj.project.coupon.mapper.CouponMapper">
+
+
+    <select id="getCouponType" resultType="java.util.HashMap">
+        SELECT id, name
+        FROM coupon_type
+    </select>
+
+    <select id="getCommodityId" resultType="java.util.HashMap">
+        SELECT id, name
+        FROM commodity WHERE status=0 AND `type` =1
+    </select>
+
+    <select id="getUserList" resultType="java.util.HashMap">
+        SELECT id, name
+        FROM `user` WHERE status=0
+    </select>
+
+
+    <update id="deleteById">
+        update coupon set `delete_status`=1 where id=#{id}
+    </update>
+
+    <insert id="insertBatchIds" parameterType="java.util.List">
+        INSERT INTO
+        coupon_merchan(coupon_id,commodity_id,create_at,create_by)
+        VALUES
+        <foreach collection="list" item="dto" separator=",">
+            (#{dto.couponId},#{dto.commodityId},#{dto.createDate},#{dto.createBy})
+        </foreach>
+    </insert>
+
+
+    <insert id="insertBatchUserIds" parameterType="java.util.List">
+        INSERT INTO
+        user_coupon_map(user_id,coupon_id,create_time,start_time,expire_time)
+        VALUES
+        <foreach collection="list" item="dto" separator=",">
+            (#{dto.userId},#{dto.couponId},#{dto.createTime},#{dto.startTime},#{dto.expireTime})
+        </foreach>
+    </insert>
+
+    <select id="selectUserName" resultType="java.util.HashMap">
+      SELECT id,name FROM `user` WHERE id IN (SELECT user_id FROM user_coupon_map WHERE `coupon_id`=#{couponId})
+    </select>
+
+    <select id="selectCommodityId" resultType="java.util.HashMap">
+        SELECT id,name FROM `commodity` WHERE id IN (SELECT commodity_id FROM coupon_merchan WHERE `coupon_id`=#{couponId})
+    </select>
+    <select id="selectIdsByCommodity" resultType="java.lang.Long">
+        select c.id from coupon c inner join coupon_merchan cm on c.id=cm.coupon_id where c.general=0 and cm.commodity_id=#{commodityId} and #{date}>=c.use_start_at and c.use_end_at>=#{date}
+    </select>
+    <select id="selectByCouponMapId" resultType="com.lingkj.project.coupon.entity.Coupon">
+        select * from coupon c inner join user_coupon_map ucm on c.id= ucm.coupon_id where ucm.id=#{couponMapId}
+    </select>
+
+    <select id="selectUserByName" resultType="java.util.HashMap">
+        select id,name from `user`  where user_name like CONCAT('%',#{name},'%') AND status = 0
+    </select>
+
+
+</mapper>

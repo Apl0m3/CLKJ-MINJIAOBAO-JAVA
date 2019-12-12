@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lingkj.project.commodity.mapper.CommodityNumberAttributesMapper">
+    <update id="updateStatusInIds">
+        update commodity_number_attributes set status=1
+        where id in
+        <foreach collection="list" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </update>
+
+
+    <select id="getList" resultType="com.lingkj.project.commodity.dto.CommodityNumberAttributesDto">
+        select * from commodity_number_attributes
+        where status=0 and commodity_id = #{value}
+        order by sort asc
+    </select>
+    <select id="selectNotInIds" resultType="java.lang.Long">
+        select id from commodity_number_attributes
+        where commodity_id = #{commodityId}
+        <if test="updateAttributesIds.size()>0">
+            and id not in
+            <foreach collection="updateAttributesIds" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
+    </select>
+</mapper>

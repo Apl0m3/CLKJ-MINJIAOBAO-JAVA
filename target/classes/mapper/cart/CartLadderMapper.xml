@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lingkj.project.cart.mapper.CartLadderMapper">
+
+
+    <select id="selectByCartId" resultType="com.lingkj.project.api.cart.dto.ApiCartLadderDto">
+        select * from cart_ladder where cart_id=#{id};
+    </select>
+</mapper>

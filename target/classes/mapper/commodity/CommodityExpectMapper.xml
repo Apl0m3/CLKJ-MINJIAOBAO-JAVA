@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lingkj.project.commodity.mapper.CommodityExpectMapper">
+
+
+    <update id="updateByNoId">
+        update commodity_expect set status=1 where commodity_id=#{commodityId} and id not in
+        <foreach collection="list" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </update>
+    <select id="getList" resultType="com.lingkj.project.commodity.entity.CommodityExpect">
+        select * from commodity_expect where commodity_id=#{id} and status=0 order by `day` asc
+    </select>
+    <select id="selectByCommodityIdApi"
+            resultType="com.lingkj.project.api.commodity.dto.ApiCommodityExpectDto">
+         select * from commodity_expect where commodity_id=#{commodityId} and status=0 order by `day` asc
+    </select>
+    <select id="selectJsonById" resultType="com.alibaba.fastjson.JSONObject">
+        select id,
+            commodity_id as commodityId,
+            day ,
+            max_num as maxNum,
+            amount
+            from commodity_expect where id=#{id}
+    </select>
+</mapper>
