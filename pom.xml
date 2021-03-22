@@ -36,7 +36,7 @@
         <joda.time.version>2.9.9</joda.time.version>
         <fastjson.version>1.2.60</fastjson.version>
         <lombok.version>1.18.4</lombok.version>
-        <xstream.version>1.4.11.1</xstream.version>
+        <xstream.version>1.4.16</xstream.version>
         <dom4j.version>1.6.1</dom4j.version>
         <zxing.version>3.3.3</zxing.version>
         <!--wagon plugin 配置-->
